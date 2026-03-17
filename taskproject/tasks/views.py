@@ -1,4 +1,9 @@
 from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.forms import UserCreationForm
+from django.shortcuts import redirect, render
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import login
+from django.contrib.auth import logout
 from .models import Task
 from django import forms
 
@@ -37,3 +42,28 @@ def task_delete(request, id):
   task = get_object_or_404(Task, id=id)
   task.delete()
   return redirect('task_list')
+
+def register(request):
+  if request.method == 'POST':
+    form = UserCreationForm(request.POST)
+    if form.is_valid():
+      form.save()
+      return redirect("login")
+  else:
+    form = UserCreationForm()
+  return render(request, "tasks/register.html",{"form":form})
+
+def user_login(request):
+  if request.method == 'POST':
+    form = AuthenticationForm(data=request.POST)
+    if form.is_valid():
+      user = form.get_user()
+      login(request,user)
+      return redirect("task_list")
+  else:
+    form = AuthenticationForm()
+  return render(request, 'task/login.html', {"form":form})
+
+def user_logout(request):
+  logout(request)
+  return redirect("login")
