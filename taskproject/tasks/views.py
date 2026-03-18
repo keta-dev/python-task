@@ -4,6 +4,7 @@ from django.shortcuts import redirect, render
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login
 from django.contrib.auth import logout
+from django.contrib.auth.decorators import login_required
 from .models import Task
 from django import forms
 
@@ -23,6 +24,7 @@ def task_create(request):
     form = TaskForm()
   return render(request, 'tasks/task_form.html', {'form': form})
 
+@login_required
 def task_list(request):
   tasks = Task.objects.all()
   return render(request, 'tasks/task_list.html', {'tasks': tasks})
@@ -43,6 +45,7 @@ def task_delete(request, id):
   task.delete()
   return redirect('task_list')
 
+# REGISTER VIEW
 def register(request):
   if request.method == 'POST':
     form = UserCreationForm(request.POST)
@@ -53,6 +56,7 @@ def register(request):
     form = UserCreationForm()
   return render(request, "tasks/register.html",{"form":form})
 
+# LOGIN VIEW
 def user_login(request):
   if request.method == 'POST':
     form = AuthenticationForm(data=request.POST)
@@ -62,8 +66,9 @@ def user_login(request):
       return redirect("task_list")
   else:
     form = AuthenticationForm()
-  return render(request, 'task/login.html', {"form":form})
+  return render(request, 'tasks/login.html', {"form":form})
 
+# LOGOUT VIEW
 def user_logout(request):
   logout(request)
   return redirect("login")
